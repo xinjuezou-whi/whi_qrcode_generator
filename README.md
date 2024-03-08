@@ -2,7 +2,7 @@
 QR code generator
 
 ## Dependency
-OpenCV >= 4.8.0
+OpenCV >= 4.8.0, refer to the [official guidance](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) for installation
 
 ## Param
 ```
