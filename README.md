@@ -1,6 +1,9 @@
 # whi_qrcode_generator
 QR code generator
 
+## Dependency
+OpenCV >= 4.8.0
+
 ## Param
 ```
 code_size default=200 # original code size in pixel
