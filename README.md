@@ -6,7 +6,6 @@ OpenCV >= 4.8.0, refer to the [official guidance](https://docs.opencv.org/4.x/d7
 
 ## Param
 ```
-code_size default=200 # original code size in pixel
 image_size default=500 # code image size in pixel
 correction_level default="middle" #low, middle, quality, high
 output_path default="/home/whi/Desktop/" # the path of the output image
