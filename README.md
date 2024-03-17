@@ -22,7 +22,9 @@ After running this command, an encoded image(png format) named the content "this
 
 ![this is a demo](https://github.com/xinjuezou-whi/whi_qrcode_generator/assets/72239958/90c2865e-4c6f-4cd8-a6bc-8cd6fae1866c)
 
-For content that has quotes, like JSON, enclose the content with apostrophes:
+For content with quotes, like JSON, enclose the content with apostrophes. For example, say we'd like to encode the JSON data:
+
+{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}:
 ```
 roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="/home/Desktop" contents:='{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}'
 ```
