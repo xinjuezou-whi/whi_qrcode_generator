@@ -15,10 +15,16 @@ show_generated default="true" # wheter to show generated code
 
 ## Usage
 ```
-roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="/home/Desktop" contents:="this is a demo" 
+roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="/home/Desktop" contents:="this is a demo"
 ```
 
 After running this command, an encoded image(png format) named the content "this is a demo" with size of 500x500 will be saved in the given path "/home/Desktop"
 
 ![this is a demo](https://github.com/xinjuezou-whi/whi_qrcode_generator/assets/72239958/90c2865e-4c6f-4cd8-a6bc-8cd6fae1866c)
 
+For content that has quotes, like JSON, enclose the content with apostrophes:
+```
+roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="/home/Desktop" contents:='{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}'
+```
+
+![json_code](https://github.com/xinjuezou-whi/whi_qrcode_generator/assets/72239958/c3f232e6-e838-42f2-95be-6b82a58bbda4)
