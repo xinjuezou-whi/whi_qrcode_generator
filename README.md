@@ -26,7 +26,7 @@ For content with quotes, like JSON, enclose the content with apostrophes. For ex
 
 {"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}:
 ```
-roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="/home/Desktop" contents:='{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}'
+roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="$HOME/Desktop" contents:='{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}'
 ```
 
 ![json_code](https://github.com/xinjuezou-whi/whi_qrcode_generator/assets/72239958/c3f232e6-e838-42f2-95be-6b82a58bbda4)
