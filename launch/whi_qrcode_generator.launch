@@ -1,19 +1,28 @@
 <?xml version="1.0"?>
 <launch>
   <!-- argument -->
+  <arg name="type" default="qr"/> <!-- qr or aruco -->
   <arg name="image_size" default="500"/>
-  <arg name="correction_level" default="middle"/> <!--low, middle, quality, high-->
-  <arg name="output_path" default="/home/whi/Desktop/"/>
   <arg name="contents" default="hello world"/>
+  <arg name="output_path" default="/home/whi/Desktop/"/>
   <arg name="show_generated" default="true"/>
+  <!-- aruco -->
+  <arg name="marker_size" default="4"/>
+  <!-- qr -->
+  <arg name="correction_level" default="middle"/> <!--low, middle, quality, high-->
 
   <!-- hardware interface -->
   <node name="whi_qrcode_generator" pkg="whi_qrcode_generator" type="whi_qrcode_generator_node" output="screen">
-    <param name="code_size" type="int" value="200"/>
+    <!-- common -->
+    <param name="type" value="$(arg type)"/>
     <param name="image_size" type="int" value="$(arg image_size)"/>
-    <param name="correction_level" type="str" value="$(arg correction_level)"/>
     <param name="output_path" type="str" value="$(arg output_path)"/>
     <param name="contents" type="str" value="$(arg contents)"/>
     <param name="show_generated" type="bool" value="$(arg show_generated)"/>
+    <!-- aruco -->
+    <param name="marker_size" value="$(arg marker_size)"/>
+    <!-- qr -->
+    <param name="code_size" type="int" value="200"/>
+    <param name="correction_level" type="str" value="$(arg correction_level)"/>
   </node>
 </launch>

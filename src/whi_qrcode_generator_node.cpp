@@ -21,6 +21,7 @@ Changelog:
 #include <ros/ros.h>
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/objdetect/aruco_detector.hpp>
 
 #define ASYNC 1
 
@@ -34,7 +35,7 @@ void signalHandler(int Signal)
 int main(int argc, char** argv)
 {
 	/// node version and copyright announcement
-	std::cout << "\nWHI QR code generator VERSION 00.01" << std::endl;
+	std::cout << "\nWHI QR code generator VERSION 00.02.1" << std::endl;
 	std::cout << "Copyright © 2024-2025 Wheel Hub Intelligent Co.,Ltd. All rights reserved\n" << std::endl;
 
 	/// ros infrastructure
@@ -44,11 +45,14 @@ int main(int argc, char** argv)
 
 	/// node logic
 	// params
-	int codeSize, imageSize;
-	nodeHandle->param("code_size", codeSize, 200);
+	std::string type;
+	if (nodeHandle->param("type", type, std::string("qr")))
+	{
+		std::transform(type.begin(), type.end(), type.begin(), [](unsigned char c) { return std::tolower(c); });
+	}
+	int imageSize;
 	nodeHandle->param("image_size", imageSize, 500);
-	std::string correctionLevel, outputPath, contents;
-	nodeHandle->param("correction_level", correctionLevel, std::string("low"));
+	std::string outputPath, contents;
 	nodeHandle->param("output_path", outputPath, std::string("/home"));
 	nodeHandle->param("contents", contents, std::string("hello world"));
 	if (outputPath.size() > 1 && outputPath.back() == '/')
@@ -57,37 +61,80 @@ int main(int argc, char** argv)
 	}
 	bool showGenerated;
 	nodeHandle->param("show_generated", showGenerated, true);
+	// ArUco
+	int markerSize;
+	nodeHandle->param("marker_size", markerSize, 4);
+	// QR
+	int codeSize;
+	nodeHandle->param("code_size", codeSize, 200);
+	std::string correctionLevel;
+	nodeHandle->param("correction_level", correctionLevel, std::string("low"));
 
-	cv::QRCodeEncoder::Params params;
-	// parse correction level
-	if (correctionLevel.find("middle") != std::string::npos)
-	{
-		params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_M;
-	}
-	else if (correctionLevel.find("quality") != std::string::npos)
-	{
-		params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_Q;
-	}
-	else if (correctionLevel.find("high") != std::string::npos)
-	{
-		params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_H;
-	}
-	else
-	{
-		params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_L;
-	}
-
-	auto qrEncoder = cv::QRCodeEncoder::create(params);
+	/// generate code
 	cv::Mat generated;
-	qrEncoder->encode(contents, generated);
-    while (generated.cols < codeSize)
-    {
-        cv::resize(generated, generated, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
-    }
-	if (imageSize > codeSize)
+	if (type == "aruco")
 	{
-		cv::resize(generated, generated, cv::Size(imageSize, imageSize));
+		int id = atoi(contents.c_str());
+		std::map<int, std::vector<int>> mapDict{
+				{4, {cv::aruco::DICT_4X4_50, cv::aruco::DICT_4X4_100, cv::aruco::DICT_4X4_250, cv::aruco::DICT_4X4_1000}},
+				{5, {cv::aruco::DICT_5X5_50, cv::aruco::DICT_5X5_100, cv::aruco::DICT_5X5_250, cv::aruco::DICT_5X5_1000}},
+				{6, {cv::aruco::DICT_6X6_50, cv::aruco::DICT_6X6_100, cv::aruco::DICT_6X6_250, cv::aruco::DICT_6X6_1000}},
+				{7, {cv::aruco::DICT_7X7_50, cv::aruco::DICT_7X7_100, cv::aruco::DICT_7X7_250, cv::aruco::DICT_7X7_1000}}
+			};
+		int dict = cv::aruco::DICT_4X4_50;
+		if (id >= 50 && id < 100)
+		{
+			dict = mapDict[markerSize][1];
+		}
+		else if (id >= 100 && id < 250)
+		{
+			dict = mapDict[markerSize][2];
+		}
+		else if (id >= 250 && id < 1000)
+		{
+			dict = mapDict[markerSize][3];
+		}
+		else
+		{
+			dict = mapDict[markerSize][0];
+		}
+		auto dictionary = cv::aruco::getPredefinedDictionary(dict);
+    	cv::aruco::generateImageMarker(dictionary, id, std::max(imageSize, 200), generated, 1);
 	}
+	else if (type == "qr")
+	{
+		cv::QRCodeEncoder::Params params;
+		// parse correction level
+		if (correctionLevel.find("middle") != std::string::npos)
+		{
+			params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_M;
+		}
+		else if (correctionLevel.find("quality") != std::string::npos)
+		{
+			params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_Q;
+		}
+		else if (correctionLevel.find("high") != std::string::npos)
+		{
+			params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_H;
+		}
+		else
+		{
+			params.correction_level = cv::QRCodeEncoder::CORRECT_LEVEL_L;
+		}
+
+		auto qrEncoder = cv::QRCodeEncoder::create(params);
+		qrEncoder->encode(contents, generated);
+		while (generated.cols < codeSize)
+		{
+			cv::resize(generated, generated, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
+		}
+		if (imageSize > codeSize)
+		{
+			cv::resize(generated, generated, cv::Size(imageSize, imageSize));
+		}
+	}
+
+	/// save generated
 	cv::imwrite(outputPath + "/" + contents + ".png", generated);
 	if (showGenerated)
 	{
