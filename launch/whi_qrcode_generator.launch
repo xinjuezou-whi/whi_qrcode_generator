@@ -4,7 +4,7 @@
   <arg name="type" default="qr"/> <!-- qr or aruco -->
   <arg name="image_size" default="500"/>
   <arg name="contents" default="hello world"/>
-  <arg name="output_path" default="/home/whi/Desktop/"/>
+  <arg name="output_path" default="$(env HOME)/Desktop/"/>
   <arg name="show_generated" default="true"/>
   <!-- aruco -->
   <arg name="marker_size" default="4"/>
