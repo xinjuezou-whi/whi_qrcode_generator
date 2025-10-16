@@ -31,7 +31,8 @@ def launch_setup(context, *args, **kwargs):
         name='whi_qrcode_generator',
         output='screen',
         parameters=[
-            {'type': type},
+            # common
+            {'type': type}, # qr, aruco
             {'contents': contents},
             {'output_path': output_path},
             {'show_generated': show},
