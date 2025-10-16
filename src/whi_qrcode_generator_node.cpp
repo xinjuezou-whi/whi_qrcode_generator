@@ -12,7 +12,8 @@ All text above must be included in any redistribution.
 
 Changelog:
 2024-03-07: Initial version
-2022-xx-xx: xxx
+2025-10-16: Migrate to ROS 2
+2025-xx-xx: xxx
 ******************************************************************/
 #include <iostream>
 #include <signal.h>
