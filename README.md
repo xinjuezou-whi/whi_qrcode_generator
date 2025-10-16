@@ -6,26 +6,26 @@ OpenCV >= 4.8.0, refer to the [official guidance](https://docs.opencv.org/4.x/d7
 
 ## Param
 ```
-<!-- common -->
-<param name="type" default="qr"/> <!-- type of code: qr or aruco -->
-<param name="image_size" type="int" default="500"/>
-<param name="output_path" type="str" default="$(env HOME)/Desktop/"/>
-<param name="contents" type="str" default="hello world"/>
-<param name="show_generated" type="bool" default="true"/>
-<!-- aruco -->
-<param name="marker_size" default="4"/>
-<!-- qr -->
-<param name="code_size" type="int" default="200"/>
-<param name="correction_level" type="str" default="middle"/>
+# common
+{'type': type}, # qr, aruco
+{'contents': contents},
+{'output_path': output_path},
+{'show_generated': show},
+{'image_size': 500},
+# ArUco
+{'marker_size': 4},
+# QR
+{'code_size': 200},
+{'correction_level': 'middle'} # low, middle, quality, high
 ```
 
 ## Usage
 ### QR
 ```
-roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 contents:="this is a demo"
+ros2 launch whi_qrcode_generator launch.py image_size:=500 contents:="this is a demo"
 ```
 
-After running this command, an encoded image(png format) named the content "this is a demo" with size of 500x500 will be saved in the given path "/${HOME}/Desktop"
+After running this command, an encoded image(png format) named the content "this is a demo" with a size of 500x500 will be saved in the default path "/${HOME}/Desktop"
 
 ![this is a demo](https://github.com/xinjuezou-whi/whi_qrcode_generator/assets/72239958/90c2865e-4c6f-4cd8-a6bc-8cd6fae1866c)
 
@@ -33,17 +33,17 @@ For content with quotes, like JSON, enclose the content with apostrophes. For ex
 
 {"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}:
 ```
-roslaunch whi_qrcode_generator whi_qrcode_generator.launch image_size:=500 output_path:="$HOME/Desktop" contents:='{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}'
+ros2 launch whi_qrcode_generator launch.py image_size:=500 output_path:="$HOME/Desktop" contents:='{"translate": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0]}'
 ```
 
 ![json_code](https://github.com/xinjuezou-whi/whi_qrcode_generator/assets/72239958/c3f232e6-e838-42f2-95be-6b82a58bbda4)
 
 ### ArUco
 ```
-roslaunch whi_qrcode_generator whi_qrcode_generator.launch type:=aruco marker_size:=4 contents:=0
+ros2 launch whi_qrcode_generator launch.py type:=aruco marker_size:=4 contents:=0
 ```
 
-After running this command, an encoded image(png format) named the content "0" with size of 500x500 will be saved in the given path "/${HOME}/Desktop"
+After running this command, an encoded image(png format) named the content "0" with size of 500x500 will be saved in the default path "/${HOME}/Desktop"
 
 ![0](https://github.com/user-attachments/assets/5f270ccf-7263-4e4a-94b9-ed02274ffc56)
 
