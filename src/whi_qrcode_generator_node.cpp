@@ -18,7 +18,7 @@ Changelog:
 #include <signal.h>
 #include <functional>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect/aruco_detector.hpp>
@@ -35,40 +35,45 @@ void signalHandler(int Signal)
 int main(int argc, char** argv)
 {
 	/// node version and copyright announcement
-	std::cout << "\nWHI QR code generator VERSION 00.02.1" << std::endl;
+	std::cout << "\nWHI QR code generator VERSION 02.02.1" << std::endl;
 	std::cout << "Copyright © 2024-2025 Wheel Hub Intelligent Co.,Ltd. All rights reserved\n" << std::endl;
 
 	/// ros infrastructure
+    rclcpp::init(argc, argv);
+
+	// create node
     const std::string nodeName("whi_qrcode_generator"); 
-	ros::init(argc, argv, nodeName);
-	auto nodeHandle = std::make_shared<ros::NodeHandle>(nodeName);
+	auto nodeHandle = std::make_shared<rclcpp::Node>(nodeName);
 
 	/// node logic
 	// params
-	std::string type;
-	if (nodeHandle->param("type", type, std::string("qr")))
+	nodeHandle->declare_parameter<std::string>("type", std::string("qr"));
+	std::string type = nodeHandle->get_parameter("type").as_string();
+	if (!type.empty())
 	{
 		std::transform(type.begin(), type.end(), type.begin(), [](unsigned char c) { return std::tolower(c); });
 	}
-	int imageSize;
-	nodeHandle->param("image_size", imageSize, 500);
-	std::string outputPath, contents;
-	nodeHandle->param("output_path", outputPath, std::string("/home"));
-	nodeHandle->param("contents", contents, std::string("hello world"));
+	nodeHandle->declare_parameter<int>("image_size", 500);
+	int imageSize = nodeHandle->get_parameter("image_size").as_int();
+	nodeHandle->declare_parameter<std::string>("output_path", std::string("/home"));
+	std::string outputPath = nodeHandle->get_parameter("output_path").as_string();
+	nodeHandle->declare_parameter<std::string>("contents", std::string("hello world"));
+	std::string contents = nodeHandle->get_parameter("contents").as_string();
 	if (outputPath.size() > 1 && outputPath.back() == '/')
 	{
 		outputPath.pop_back();
 	}
-	bool showGenerated;
-	nodeHandle->param("show_generated", showGenerated, true);
+	nodeHandle->declare_parameter<bool>("show_generated", true);
+	bool showGenerated = nodeHandle->get_parameter("show_generated").as_bool();
+
 	// ArUco
-	int markerSize;
-	nodeHandle->param("marker_size", markerSize, 4);
+	nodeHandle->declare_parameter<int>("marker_size", 4);
+	int markerSize = nodeHandle->get_parameter("marker_size").as_int();
 	// QR
-	int codeSize;
-	nodeHandle->param("code_size", codeSize, 200);
-	std::string correctionLevel;
-	nodeHandle->param("correction_level", correctionLevel, std::string("low"));
+	nodeHandle->declare_parameter<int>("code_size", 200);
+	int codeSize = nodeHandle->get_parameter("code_size").as_int();
+	nodeHandle->declare_parameter<std::string>("correction_level", std::string("low"));
+	std::string correctionLevel = nodeHandle->get_parameter("correction_level").as_string();
 
 	/// generate code
 	cv::Mat generated;
@@ -151,19 +156,21 @@ int main(int argc, char** argv)
 		// instance = nullptr;
 
 		// all the default sigint handler does is call shutdown()
-		ros::shutdown();
+        if (rclcpp::ok())
+        {
+            rclcpp::shutdown();
+        }
 	};
 
 	/// ros spinner
 	// NOTE: We run the ROS loop in a separate thread as external calls such as
 	// service callbacks to load controllers can block the (main) control loop
 #if ASYNC
-	ros::AsyncSpinner spinner(0);
-	spinner.start();
-	ros::waitForShutdown();
+    auto executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
+    executor->add_node(nodeHandle);
+    executor->spin();  // blocking until shutdown
 #else
-	ros::MultiThreadedSpinner spinner(0);
-	spinner.spin();
+    rclcpp::spin(nodeHandle);
 #endif
 
 	std::cout << nodeName << " exited" << std::endl;
